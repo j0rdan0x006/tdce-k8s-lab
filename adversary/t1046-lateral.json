@@ -1,0 +1,20 @@
+{
+  "adversary_id": "tdce-t1046",
+  "name": "TDCE - T1046 Lateral Movement",
+  "atomic_ordering": ["T1046-1"],
+  "description": "Service discovery / scanning",
+  "phases": {
+    "1": [
+      {
+        "id": "T1046-1",
+        "name": "Service Discovery",
+        "description": "DNS lookup & port scan",
+        "technique_id": "T1046",
+        "tactic": "lateral-movement",
+        "executors": [
+          { "name": "sh", "platform": "linux", "command": "nslookup kubernetes.default.svc.cluster.local || true; nc -z -v -w1 10.96.0.1 443 || true" }
+        ]
+      }
+    ]
+  }
+}

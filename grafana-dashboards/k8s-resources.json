@@ -1,0 +1,34 @@
+{
+  "id": null,
+  "uid": "k8s-resources",
+  "title": "Kubernetes Resources",
+  "schemaVersion": 30,
+  "version": 1,
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Node CPU Usage (%)",
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)", "legendFormat": "{{instance}}" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Node Memory Usage (%)",
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100", "legendFormat": "{{instance}}" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Network RX/TX (bytes/s)",
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "rate(node_network_receive_bytes_total[5m])", "legendFormat": "{{instance}} RX" },
+        { "expr": "rate(node_network_transmit_bytes_total[5m])", "legendFormat": "{{instance}} TX" }
+      ]
+    }
+  ]
+}

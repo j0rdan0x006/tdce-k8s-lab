@@ -1,0 +1,17 @@
+{
+  "id": null,
+  "uid": "falco-alerts",
+  "title": "Falco Security Alerts",
+  "schemaVersion": 30,
+  "version": 1,
+  "panels": [
+    {
+      "type": "table",
+      "title": "Falco Events (rate by rule/priority)",
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "sum by (rule, priority) (rate(falco_events[5m]))", "legendFormat": "{{rule}} ({{priority}})" }
+      ]
+    }
+  ]
+}

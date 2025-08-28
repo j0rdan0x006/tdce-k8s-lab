@@ -1,0 +1,7 @@
+rules:
+  - rule: TDCE Suspicious Service Discovery
+    desc: Detect mass DNS/port scanning inside a pod
+    condition: container and (fd.sport != 53) and (fd.l4proto = tcp or fd.l4proto = udp) and (proc.name in (nmap, nc, masscan, dig, nslookup))
+    output: "Lateral movement / recon: %proc.name contacting %fd.sip:%fd.sport (container=%container.id)"
+    priority: WARNING
+    tags: [mitre_t1046, lateral_movement]

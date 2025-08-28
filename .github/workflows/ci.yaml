@@ -1,0 +1,57 @@
+name: CI
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  kind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+
+      - name: Install kind
+        run: |
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
+          chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Create cluster
+        run: kind create cluster --name tdce-cluster --config=kind-config.yaml
+
+      - name: Build & load exporter
+        run: |
+          docker build -t chaos-metrics-exporter:local exporters/chaos-metrics-exporter
+          kind load docker-image chaos-metrics-exporter:local --name tdce-cluster
+
+      - name: Deploy base
+        run: |
+          kubectl apply -f manifests/prometheus-grafana.yaml
+          kubectl apply -f manifests/falco-daemonset.yaml
+          kubectl apply -f falco/
+          kubectl apply -f manifests/rbac.yaml
+          kubectl apply -f manifests/networkpolicy.yaml
+          kubectl apply -f manifests/demo-app.yaml
+          kubectl apply -f manifests/chaos-metrics-exporter.yaml
+
+      - name: Install Chaos Mesh
+        run: |
+          helm repo add chaos-mesh https://charts.chaos-mesh.org
+          helm repo update
+          helm upgrade --install chaos-mesh chaos-mesh/chaos-mesh -n chaos-testing --create-namespace --set chaosDaemon.runtime=containerd --set chaosDaemon.socketPath=/run/containerd/containerd.sock
+
+      - name: Apply chaos & adversary manifests
+        run: |
+          kubectl apply -f chaos/
+          kubectl apply -f adversary/caldera-deployment.yaml
+
+      - name: Cleanup
+        if: always()
+        run: kind delete cluster --name tdce-cluster

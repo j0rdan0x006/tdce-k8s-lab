@@ -1,0 +1,7 @@
+rules:
+  - rule: TDCE Unexpected Privileged Container
+    desc: Detect privileged escalation via privileged container
+    condition: evt.type = execve and container and proc.name in (bash,sh) and container.privileged=true
+    output: "PrivEsc attempt: privileged shell in container (user=%user.name container=%container.id proc=%proc.name)"
+    priority: CRITICAL
+    tags: [mitre_t1610, privilege_escalation]

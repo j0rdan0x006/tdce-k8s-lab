@@ -1,0 +1,20 @@
+{
+  "adversary_id": "tdce-t1610",
+  "name": "TDCE - T1610 Privilege Escalation",
+  "atomic_ordering": ["T1610-1"],
+  "description": "Simulate kubelet misconfig or privileged shell",
+  "phases": {
+    "1": [
+      {
+        "id": "T1610-1",
+        "name": "Spawn Privileged Shell",
+        "description": "Attempt to run privileged shell in container",
+        "technique_id": "T1610",
+        "tactic": "privilege-escalation",
+        "executors": [
+          { "name": "sh", "platform": "linux", "command": "id && whoami" }
+        ]
+      }
+    ]
+  }
+}

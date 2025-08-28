@@ -1,0 +1,7 @@
+rules:
+  - rule: TDCE Kubernetes Secrets Read via ServiceAccount Token
+    desc: Detect in-cluster secret read via SA token curl
+    condition: container and proc.name=cur* and fd.port=443 and fd.sip in (10.96.0.1, 10.96.0.10)
+    output: "Possible persistence via API query from container (proc=%proc.name %fd.sip)"
+    priority: NOTICE
+    tags: [persistence]
